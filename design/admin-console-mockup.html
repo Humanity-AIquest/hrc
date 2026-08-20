@@ -1,0 +1,904 @@
+<title>HRC Admin Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground:      #EEF2F1;
+    --surface:     #FFFFFF;
+    --surface-2:   #F6F9F8;
+    --surface-3:   #E6EDEB;
+    --ink:         #08131F;
+    --ink-soft:    #45575F;
+    --ink-mute:    #6B7D84;
+    --rule:        #D3DEDB;
+    --rule-soft:   #E4EBE9;
+    --accent:      #0C7F77;
+    --accent-deep: #075E58;
+    --accent-wash: #DCEFEC;
+    --ok:          #2C7A4B;
+    --ok-wash:     #DDEFE3;
+    --warn:        #8A6410;
+    --warn-wash:   #F6EBD3;
+    --crit:        #A8342A;
+    --crit-wash:   #F7E3E1;
+    --sidebar:     #0B1A24;
+    --sidebar-ink: #C3D5D6;
+    --sidebar-dim: #62808A;
+    --sidebar-rule:#1A2E3A;
+
+    --f-display: "Spectral", Georgia, serif;
+    --f-body:    "Public Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:    "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #050C13;
+      --surface:     #0C1821;
+      --surface-2:   #101F29;
+      --surface-3:   #172A36;
+      --ink:         #E4EDEC;
+      --ink-soft:    #A6BABB;
+      --ink-mute:    #748D8D;
+      --rule:        #1F3039;
+      --rule-soft:   #182731;
+      --accent:      #56D8CC;
+      --accent-deep: #8AE9E0;
+      --accent-wash: #0E2C2E;
+      --ok:          #6BC98C;
+      --ok-wash:     #10281A;
+      --warn:        #DFAE5C;
+      --warn-wash:   #2A2113;
+      --crit:        #E8867B;
+      --crit-wash:   #2D1714;
+      --sidebar:     #060F16;
+      --sidebar-ink: #A8BFC1;
+      --sidebar-dim: #55707A;
+      --sidebar-rule:#152530;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #050C13;
+    --surface:     #0C1821;
+    --surface-2:   #101F29;
+    --surface-3:   #172A36;
+    --ink:         #E4EDEC;
+    --ink-soft:    #A6BABB;
+    --ink-mute:    #748D8D;
+    --rule:        #1F3039;
+    --rule-soft:   #182731;
+    --accent:      #56D8CC;
+    --accent-deep: #8AE9E0;
+    --accent-wash: #0E2C2E;
+    --ok:          #6BC98C;
+    --ok-wash:     #10281A;
+    --warn:        #DFAE5C;
+    --warn-wash:   #2A2113;
+    --crit:        #E8867B;
+    --crit-wash:   #2D1714;
+    --sidebar:     #060F16;
+    --sidebar-ink: #A8BFC1;
+    --sidebar-dim: #55707A;
+    --sidebar-rule:#152530;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .note {
+    background: var(--warn-wash);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.5rem 1rem;
+    font-size: 0.74rem;
+    color: var(--warn);
+    font-family: var(--f-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: 14rem 1fr;
+    min-height: 90vh;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+  }
+  @media (max-width: 860px) { .shell { grid-template-columns: 1fr; } }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  .sidebar {
+    background: var(--sidebar);
+    padding: 1.1rem 0 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.3rem;
+  }
+  @media (max-width: 860px) { .sidebar { padding-bottom: 1rem; } }
+
+  .brand { padding: 0 1.05rem; }
+  .brand .bt {
+    font-family: var(--f-display);
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: #F0F5F4;
+    line-height: 1.2;
+  }
+  .brand .bs {
+    font-family: var(--f-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sidebar-dim);
+    margin-top: 0.2rem;
+  }
+
+  .navgrp { display: flex; flex-direction: column; }
+  .navgrp .lbl {
+    font-family: var(--f-mono);
+    font-size: 0.57rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--sidebar-dim);
+    padding: 0 1.05rem 0.4rem;
+  }
+  .nav {
+    background: none;
+    border: none;
+    border-left: 2px solid transparent;
+    text-align: left;
+    font-family: var(--f-body);
+    font-size: 0.815rem;
+    color: var(--sidebar-ink);
+    padding: 0.4rem 1.05rem 0.4rem 0.92rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .nav:hover { background: var(--sidebar-rule); color: #F0F5F4; }
+  .nav[aria-current="true"] {
+    background: var(--sidebar-rule);
+    border-left-color: var(--accent);
+    color: #FFFFFF;
+    font-weight: 600;
+  }
+  .nav:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .nav .badge {
+    font-family: var(--f-mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    background: var(--accent);
+    color: #04262A;
+    border-radius: 8px;
+    padding: 0.05em 0.42em;
+    flex: none;
+  }
+  .nav .badge.hot { background: #E8867B; color: #2D1714; }
+  .nav.p2 { color: var(--sidebar-dim); cursor: default; }
+  .nav.p2:hover { background: none; color: var(--sidebar-dim); }
+  .nav .p2tag {
+    font-family: var(--f-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    color: var(--sidebar-dim);
+    border: 1px solid var(--sidebar-rule);
+    border-radius: 2px;
+    padding: 0.05em 0.3em;
+    flex: none;
+  }
+
+  /* ── Main ─────────────────────────────────────── */
+  .main { display: flex; flex-direction: column; min-width: 0; }
+
+  .topbar {
+    border-bottom: 1px solid var(--rule);
+    padding: 1rem 1.4rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: var(--surface-2);
+  }
+  .topbar h1 {
+    font-family: var(--f-display);
+    font-size: 1.32rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+  }
+  .topbar .path {
+    font-family: var(--f-mono);
+    font-size: 0.66rem;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+    margin-bottom: 0.2rem;
+  }
+  .topbar .sub { font-size: 0.8rem; color: var(--ink-mute); margin-top: 0.15rem; }
+
+  .pane { padding: 1.4rem; display: none; flex-direction: column; gap: 1.5rem; min-width: 0; }
+  .pane.on { display: flex; }
+
+  h2.sec {
+    font-family: var(--f-body);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin: 0 0 0.7rem;
+  }
+
+  /* ── Stat tiles ───────────────────────────────── */
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .tile { background: var(--surface); padding: 0.85rem 0.95rem 0.95rem; }
+  .tile .k {
+    font-family: var(--f-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .tile .v {
+    font-family: var(--f-display);
+    font-size: 1.65rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-top: 0.3rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .tile .d { font-size: 0.73rem; color: var(--ink-mute); margin-top: 0.15rem; }
+  .tile .d.up { color: var(--ok); }
+  .tile .d.dn { color: var(--crit); }
+
+  /* ── Pipeline ─────────────────────────────────── */
+  .pipe {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .st { background: var(--surface); padding: 0.85rem 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .st.live { background: var(--accent-wash); }
+  .st .sn {
+    font-family: var(--f-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .st.live .sn { color: var(--accent-deep); }
+  .st .ver {
+    font-family: var(--f-mono);
+    font-size: 0.98rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .st .empty { font-size: 0.8rem; color: var(--ink-mute); font-style: italic; }
+  .st .meta { font-size: 0.72rem; color: var(--ink-mute); line-height: 1.45; }
+
+  /* ── Buttons ──────────────────────────────────── */
+  .btn {
+    font-family: var(--f-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.32rem 0.7rem;
+    border-radius: 3px;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--surface-3); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .btn.pri { background: var(--accent); border-color: var(--accent); color: #04262A; }
+  .btn.pri:hover { background: var(--accent-deep); }
+  .btn.dgr { color: var(--crit); border-color: var(--crit); background: transparent; }
+  .btn.dgr:hover { background: var(--crit-wash); }
+  .btn.sm { font-size: 0.7rem; padding: 0.22rem 0.55rem; }
+  .row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  /* ── Pills ────────────────────────────────────── */
+  .pill {
+    display: inline-block;
+    font-family: var(--f-mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 0.14em 0.48em;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .s-ok   { background: var(--ok-wash);   color: var(--ok); }
+  .s-warn { background: var(--warn-wash); color: var(--warn); }
+  .s-crit { background: var(--crit-wash); color: var(--crit); }
+  .s-mute { background: var(--surface-3); color: var(--ink-soft); }
+  .s-acc  { background: var(--accent-wash); color: var(--accent-deep); }
+
+  /* ── Tables ───────────────────────────────────── */
+  .scroll { overflow-x: auto; border: 1px solid var(--rule); }
+  table { border-collapse: collapse; width: 100%; min-width: 40rem; font-size: 0.8rem; }
+  thead th {
+    text-align: left;
+    font-family: var(--f-mono);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding: 0.55rem 0.85rem;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-2); }
+  td.mono { font-family: var(--f-mono); font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+  td.nm { font-weight: 600; }
+  td.dim { color: var(--ink-mute); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ── Approval cards ───────────────────────────── */
+  .apr { border: 1px solid var(--rule); background: var(--surface); }
+  .apr + .apr { margin-top: -1px; }
+  .apr-h {
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .apr-h .t { font-weight: 700; font-size: 0.87rem; }
+  .apr-h .m { font-size: 0.72rem; color: var(--ink-mute); margin-top: 0.1rem; }
+  .apr-b { padding: 0.9rem 1rem; background: var(--surface-2); }
+
+  .diff { font-family: var(--f-mono); font-size: 0.73rem; line-height: 1.65; }
+  .diff div { padding: 0.12rem 0.5rem; }
+  .diff .del { background: var(--crit-wash); color: var(--crit); }
+  .diff .add { background: var(--ok-wash);   color: var(--ok); }
+  .diff .ctx { color: var(--ink-mute); }
+
+  .verdict {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    margin-top: 0.8rem;
+    padding: 0.6rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    font-size: 0.78rem;
+  }
+  .verdict .vt { font-family: var(--f-mono); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); display: block; margin-bottom: 0.15rem; }
+
+  /* ── Firewall log ─────────────────────────────── */
+  .log { border: 1px solid var(--rule); font-family: var(--f-mono); font-size: 0.74rem; }
+  .log-r {
+    display: grid;
+    grid-template-columns: 5.2rem 6rem 1fr;
+    gap: 0.7rem;
+    padding: 0.42rem 0.8rem;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .log-r:last-child { border-bottom: none; }
+  .log-r .ts { color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+  .log-r .msg { color: var(--ink-soft); font-family: var(--f-body); font-size: 0.78rem; }
+  .log-r .msg b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 620px) { .log-r { grid-template-columns: 1fr; gap: 0.15rem; } }
+
+  .hint {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    border-left: 2px solid var(--accent);
+    padding-left: 0.7rem;
+    max-width: 60ch;
+  }
+</style>
+
+<div class="note">Interactive mockup · click the sidebar to move between screens · data is illustrative</div>
+
+<div class="shell">
+
+  <nav class="sidebar">
+    <div class="brand">
+      <div class="bt">Humanity-AI</div>
+      <div class="bs">Admin Console</div>
+    </div>
+
+    <div class="navgrp">
+      <div class="lbl">Attention</div>
+      <button class="nav" data-p="overview" aria-current="true">Overview <span class="badge">7</span></button>
+      <button class="nav" data-p="content">Content approvals <span class="badge hot">3</span></button>
+      <button class="nav" data-p="actions">Action inbox <span class="badge">4</span></button>
+    </div>
+
+    <div class="navgrp">
+      <div class="lbl">Protocol</div>
+      <button class="nav" data-p="releases">Releases</button>
+      <button class="nav" data-p="firewall">Firewall &amp; agents <span class="badge hot">2</span></button>
+      <button class="nav" data-p="clients">Connected clients</button>
+      <button class="nav" data-p="tools">Tool registry</button>
+      <button class="nav" data-p="scopes">Scopes &amp; mandates</button>
+    </div>
+
+    <div class="navgrp">
+      <div class="lbl">Community</div>
+      <button class="nav" data-p="members">Members &amp; vouching</button>
+      <button class="nav" data-p="ledger">Contribution ledger</button>
+      <button class="nav" data-p="constitution">Ratification</button>
+    </div>
+
+    <div class="navgrp">
+      <div class="lbl">Post-funding</div>
+      <button class="nav p2" disabled>Sprints &amp; epics <span class="p2tag">P2</span></button>
+      <button class="nav p2" disabled>Agent workforce <span class="p2tag">P2</span></button>
+      <button class="nav p2" disabled>Constitutional CI <span class="p2tag">P2</span></button>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <div class="topbar">
+      <div>
+        <div class="path" id="path">/admin</div>
+        <h1 id="title">Overview</h1>
+        <div class="sub" id="sub">Signed in as Anton · Super Admin (L5)</div>
+      </div>
+      <div class="row" id="acts"></div>
+    </div>
+
+    <!-- ── OVERVIEW ─────────────────────────────── -->
+    <div class="pane on" id="p-overview">
+      <div>
+        <h2 class="sec">Needs a human</h2>
+        <div class="tiles">
+          <div class="tile"><div class="k">Content approvals</div><div class="v">3</div><div class="d">oldest 2 days</div></div>
+          <div class="tile"><div class="k">Agent actions</div><div class="v">4</div><div class="d">oldest 4 hours</div></div>
+          <div class="tile"><div class="k">Vouches pending</div><div class="v">11</div><div class="d">2 need a second voucher</div></div>
+          <div class="tile"><div class="k">Firewall refusals</div><div class="v">2</div><div class="d dn">both same credential</div></div>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="sec">Health</h2>
+        <div class="tiles">
+          <div class="tile"><div class="k">Verified members</div><div class="v">148</div><div class="d up">+23 this week</div></div>
+          <div class="tile"><div class="k">Agents registered</div><div class="v">61</div><div class="d">41% of members</div></div>
+          <div class="tile"><div class="k">Clauses at consensus</div><div class="v">31<span style="font-size:.9rem;color:var(--ink-mute)">/52</span></div><div class="d up">+4 this week</div></div>
+          <div class="tile"><div class="k">hrc_check refusal</div><div class="v">6.2%</div><div class="d">healthy band 2–15%</div></div>
+          <div class="tile"><div class="k">Allowance spend</div><div class="v">$214</div><div class="d">of $400 monthly</div></div>
+          <div class="tile"><div class="k">Plugin adoption</div><div class="v">83%</div><div class="d">on v0.2.1 or newer</div></div>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="sec">Recent activity</h2>
+        <div class="log">
+          <div class="log-r"><span class="ts">14:22</span><span class="pill s-crit">refused</span><span class="msg">Unregistered agent attempted <b>cast_vote</b> — no human sponsor</span></div>
+          <div class="log-r"><span class="ts">13:58</span><span class="pill s-ok">sealed</span><span class="msg"><b>M. Okonjo</b> sealed an argument on clause II.4 · AI-assisted, disclosed</span></div>
+          <div class="log-r"><span class="ts">13:31</span><span class="pill s-acc">vouched</span><span class="msg"><b>R. Delacroix</b> vouched for <b>S. Haddad</b> — 2 of 2, admitted</span></div>
+          <div class="log-r"><span class="ts">12:07</span><span class="pill s-warn">held</span><span class="msg">Triage agent proposed merging 3 duplicate arguments — awaiting approval</span></div>
+          <div class="log-r"><span class="ts">11:44</span><span class="pill s-ok">ratified</span><span class="msg">Clause I.19 passed threshold — 78% support, 112 votes</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RELEASES ─────────────────────────────── -->
+    <div class="pane" id="p-releases">
+      <div>
+        <h2 class="sec">Plugin release pipeline</h2>
+        <div class="pipe">
+          <div class="st">
+            <span class="sn">Draft</span>
+            <span class="ver">v0.3.1</span>
+            <span class="meta">Adds <code>/where-do-i-stand</code>.<br>Built 2h ago, not distributed.</span>
+            <div class="row"><button class="btn sm">Promote to staged</button></div>
+          </div>
+          <div class="st">
+            <span class="sn">Staged</span>
+            <span class="ver">v0.3.0</span>
+            <span class="meta">Staff only · 3 installs<br>0 errors in 48h</span>
+            <div class="row"><button class="btn sm pri">Promote to canary</button></div>
+          </div>
+          <div class="st live">
+            <span class="sn">Canary · live</span>
+            <span class="ver">v0.2.2</span>
+            <span class="meta">18 members opted in<br>0.4% error rate · 4 days</span>
+            <div class="row"><button class="btn sm pri">Promote to general</button><button class="btn sm dgr">Halt</button></div>
+          </div>
+          <div class="st live">
+            <span class="sn">General · live</span>
+            <span class="ver">v0.2.1</span>
+            <span class="meta">109 clients · 83% adoption<br>Published 12 days ago</span>
+            <div class="row"><button class="btn sm dgr">Roll back</button></div>
+          </div>
+        </div>
+        <p class="hint" style="margin-top:.9rem">Nothing moves between stages without a human clicking promote. Every promotion records who, when, and what changed.</p>
+      </div>
+
+      <div>
+        <h2 class="sec">Release history</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Version</th><th>Stage</th><th>Changed</th><th>Promoted by</th><th>Date</th><th class="num">Clients</th></tr></thead>
+            <tbody>
+              <tr><td class="mono nm">v0.3.1</td><td><span class="pill s-mute">draft</span></td><td>New slash command</td><td class="dim">—</td><td class="mono dim">20 Aug</td><td class="num dim">0</td></tr>
+              <tr><td class="mono nm">v0.3.0</td><td><span class="pill s-warn">staged</span></td><td>Devil's-advocate subagent</td><td>Anton</td><td class="mono">18 Aug</td><td class="num">3</td></tr>
+              <tr><td class="mono nm">v0.2.2</td><td><span class="pill s-acc">canary</span></td><td>Bootstrap skill trimmed to pointer</td><td>Anton</td><td class="mono">16 Aug</td><td class="num">18</td></tr>
+              <tr><td class="mono nm">v0.2.1</td><td><span class="pill s-ok">general</span></td><td>OAuth refresh fix</td><td>Anton</td><td class="mono">08 Aug</td><td class="num">109</td></tr>
+              <tr><td class="mono nm">v0.2.0</td><td><span class="pill s-mute">superseded</span></td><td>First public release</td><td>Anton</td><td class="mono">29 Jul</td><td class="num">14</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="sec">Minimum supported version</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Setting</th><th>Value</th><th>Effect</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="nm">Minimum accepted</td><td class="mono">v0.2.0</td><td class="dim">Older clients are refused with an upgrade notice</td><td><button class="btn sm">Change</button></td></tr>
+              <tr><td class="nm">Deprecation warning</td><td class="mono">below v0.2.1</td><td class="dim">Agent shows a notice at connect</td><td><button class="btn sm">Change</button></td></tr>
+              <tr><td class="nm">Sunset date for v0.2.0</td><td class="mono">15 Sep 2026</td><td class="dim">26 days · 4 clients affected</td><td><button class="btn sm">Change</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONTENT ──────────────────────────────── -->
+    <div class="pane" id="p-content">
+      <p class="hint">Content is served live by the MCP server. Approve here and it reaches every connected agent within seconds — which is exactly why it is reviewed before publish, not after.</p>
+
+      <div>
+        <div class="apr">
+          <div class="apr-h">
+            <div>
+              <div class="t">Clause I.33 — Right to Truthful Media &amp; Pro-Humanity Content</div>
+              <div class="m">Amendment from ratified proposal #PR-041 · submitted by M. Okonjo · 2 days ago</div>
+            </div>
+            <div class="row">
+              <button class="btn pri">Approve &amp; publish</button>
+              <button class="btn">Reject…</button>
+            </div>
+          </div>
+          <div class="apr-b">
+            <div class="diff">
+              <div class="ctx">  Every person has the right to know whether the media they</div>
+              <div class="del">− encounter was generated by an artificial system.</div>
+              <div class="add">+ encounter was generated or materially altered by an artificial</div>
+              <div class="add">+ system, and to have that disclosure presented at the point of</div>
+              <div class="add">+ encounter rather than buried in metadata.</div>
+              <div class="ctx">  This right may not be waived by contract.</div>
+            </div>
+            <div class="verdict">
+              <span class="pill s-ok">passes</span>
+              <div>
+                <span class="vt">Constitutional check</span>
+                Strengthens I.33 without creating conflict. Engages I.4 (transparency) and II.4 (enforcement) — both consistent. No downstream clause requires amendment.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="apr">
+          <div class="apr-h">
+            <div>
+              <div class="t">Agent conduct rules — §3 disclosure thresholds</div>
+              <div class="m">Served at <code>hrc://conduct</code> · affects all 61 registered agents · 1 day ago</div>
+            </div>
+            <div class="row">
+              <button class="btn pri">Approve &amp; publish</button>
+              <button class="btn">Reject…</button>
+            </div>
+          </div>
+          <div class="apr-b">
+            <div class="diff">
+              <div class="ctx">  An agent must disclose its role in any contribution.</div>
+              <div class="del">− Disclosure is required where the agent drafted the text.</div>
+              <div class="add">+ Disclosure is required where the agent drafted, restructured,</div>
+              <div class="add">+ or materially edited the text. Spelling and formatting are exempt.</div>
+            </div>
+            <div class="verdict">
+              <span class="pill s-warn">review</span>
+              <div>
+                <span class="vt">Constitutional check</span>
+                Consistent with I.33 but broadens an obligation on members. Consider whether this needs a member vote rather than an admin publish.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="apr">
+          <div class="apr-h">
+            <div>
+              <div class="t">Deliberation protocol — argument clustering</div>
+              <div class="m">Served at <code>hrc://protocol</code> · authored by Anton · 4 hours ago</div>
+            </div>
+            <div class="row">
+              <button class="btn pri">Approve &amp; publish</button>
+              <button class="btn">Reject…</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FIREWALL ─────────────────────────────── -->
+    <div class="pane" id="p-firewall">
+      <p class="hint">Every agent must hold a credential issued to a verified human sponsor before it can reach a member or write anything. Credentials carry scopes, expire, and can be revoked instantly — the revocation list is published.</p>
+
+      <div>
+        <h2 class="sec">Credentials</h2>
+        <div class="tiles">
+          <div class="tile"><div class="k">Active</div><div class="v">61</div><div class="d">across 4 client types</div></div>
+          <div class="tile"><div class="k">Expiring in 7d</div><div class="v">5</div><div class="d">auto-renew on use</div></div>
+          <div class="tile"><div class="k">Revoked</div><div class="v">3</div><div class="d">2 by sponsor, 1 by staff</div></div>
+          <div class="tile"><div class="k">Refused today</div><div class="v">2</div><div class="d dn">1 unregistered, 1 scope</div></div>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="sec">Registered agents</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Credential</th><th>Sponsor</th><th>Client</th><th>Scopes</th><th>Status</th><th>Expires</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="mono">hrc-a7f3…9b21</td><td class="nm">M. Okonjo</td><td>Claude Code</td>
+                <td class="dim">read · deliberate · vote</td><td><span class="pill s-ok">active</span></td><td class="mono dim">12 Nov</td>
+                <td><button class="btn sm dgr">Revoke</button></td>
+              </tr>
+              <tr>
+                <td class="mono">hrc-2c81…4de0</td><td class="nm">R. Delacroix</td><td>Cursor</td>
+                <td class="dim">read · deliberate</td><td><span class="pill s-ok">active</span></td><td class="mono dim">03 Dec</td>
+                <td><button class="btn sm dgr">Revoke</button></td>
+              </tr>
+              <tr>
+                <td class="mono">hrc-9e04…77af</td><td class="nm">S. Haddad</td><td>Claude Desktop</td>
+                <td class="dim">read</td><td><span class="pill s-warn">expiring</span></td><td class="mono">27 Aug</td>
+                <td><button class="btn sm">Renew</button></td>
+              </tr>
+              <tr>
+                <td class="mono dim">hrc-51bb…08c3</td><td class="nm dim">J. Ferreira</td><td class="dim">Windsurf</td>
+                <td class="dim">—</td><td><span class="pill s-crit">revoked</span></td><td class="mono dim">—</td>
+                <td><button class="btn sm">Detail</button></td>
+              </tr>
+              <tr>
+                <td class="mono dim">hrc-d330…1f56</td><td class="nm dim">unknown</td><td class="dim">unidentified</td>
+                <td class="dim">—</td><td><span class="pill s-crit">refused</span></td><td class="mono dim">—</td>
+                <td><button class="btn sm">Detail</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="sec">Firewall log</h2>
+        <div class="log">
+          <div class="log-r"><span class="ts">14:22:07</span><span class="pill s-crit">refused</span><span class="msg"><b>No credential presented</b> — connection dropped before handshake completed</span></div>
+          <div class="log-r"><span class="ts">11:09:44</span><span class="pill s-crit">refused</span><span class="msg"><b>hrc-9e04…77af</b> attempted <b>cast_vote</b> — credential holds <code>read</code> only</span></div>
+          <div class="log-r"><span class="ts">09:51:12</span><span class="pill s-warn">blocked</span><span class="msg"><b>hrc-2c81…4de0</b> attempted <b>draft_amendment</b> — refused by constitutional check, conflicts with I.7</span></div>
+          <div class="log-r"><span class="ts">08:30:55</span><span class="pill s-crit">revoked</span><span class="msg"><b>hrc-51bb…08c3</b> revoked by staff — repeated conduct violations · added to published revocation list</span></div>
+          <div class="log-r"><span class="ts">07:14:02</span><span class="pill s-ok">issued</span><span class="msg">Credential issued to <b>S. Haddad</b> · scopes <code>read</code> · 90-day term</span></div>
+        </div>
+        <p class="hint" style="margin-top:.9rem">This log is the funder demo: connect unregistered, get refused; register, get through; attempt a prohibited action, get refused with the clause cited; revoke live, get locked out mid-session.</p>
+      </div>
+    </div>
+
+    <!-- ── ACTION INBOX ─────────────────────────── -->
+    <div class="pane" id="p-actions">
+      <p class="hint">Agent actions that require a human decision before they take effect. Rejection reasons are kept and used to improve the prompts.</p>
+      <div>
+        <div class="apr">
+          <div class="apr-h">
+            <div>
+              <div class="t">Triage agent · merge 3 duplicate arguments on clause II.4</div>
+              <div class="m">Proposed 2h ago · est. cost $0.04 · <span class="pill s-ok">passes</span> constitutional check</div>
+            </div>
+            <div class="row"><button class="btn pri">Approve</button><button class="btn">Redirect…</button><button class="btn">Reject…</button></div>
+          </div>
+          <div class="apr-b" style="font-size:.8rem;color:var(--ink-soft)">
+            Three members submitted materially identical objections about enforcement scope. Merging preserves all three attributions in the ledger and presents one thread. No content is discarded.
+          </div>
+        </div>
+        <div class="apr">
+          <div class="apr-h">
+            <div>
+              <div class="t">Community agent · send ratification reminder to 34 members</div>
+              <div class="m">Proposed 4h ago · est. cost $0.11 · outbound message</div>
+            </div>
+            <div class="row"><button class="btn pri">Approve</button><button class="btn">Redirect…</button><button class="btn">Reject…</button></div>
+          </div>
+        </div>
+        <div class="apr">
+          <div class="apr-h">
+            <div>
+              <div class="t">Docs agent · update onboarding guide for v0.2.2 plugin</div>
+              <div class="m">Proposed 6h ago · est. cost $0.08</div>
+            </div>
+            <div class="row"><button class="btn pri">Approve</button><button class="btn">Redirect…</button><button class="btn">Reject…</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PLACEHOLDER PANES ────────────────────── -->
+    <div class="pane" id="p-clients">
+      <p class="hint">Who is connected, on which client, running which plugin version — populated by the version handshake on every MCP connection.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Client</th><th>Members</th><th>Plugin version spread</th><th>Errors 7d</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="nm">Claude Code</td><td class="num">71</td><td class="mono dim">v0.2.1 (58) · v0.2.2 (13)</td><td class="num">3</td><td><span class="pill s-ok">supported</span></td></tr>
+            <tr><td class="nm">Claude Desktop</td><td class="num">28</td><td class="mono dim">MCP direct</td><td class="num">0</td><td><span class="pill s-ok">supported</span></td></tr>
+            <tr><td class="nm">Cursor</td><td class="num">19</td><td class="mono dim">MCP direct</td><td class="num">1</td><td><span class="pill s-ok">supported</span></td></tr>
+            <tr><td class="nm">Windsurf</td><td class="num">6</td><td class="mono dim">MCP direct</td><td class="num">0</td><td><span class="pill s-warn">untested</span></td></tr>
+            <tr><td class="nm dim">Unidentified</td><td class="num dim">4</td><td class="mono dim">v0.2.0</td><td class="num">7</td><td><span class="pill s-crit">sunset 15 Sep</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="p-tools">
+      <p class="hint">Enable, deprecate, or retire any tool without a redeploy. Changes take effect on the next connection.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Tool</th><th>Class</th><th>Schema</th><th>Calls 7d</th><th>Errors</th><th>p95</th><th>State</th></tr></thead>
+          <tbody>
+            <tr><td class="mono nm">hrc_lookup</td><td><span class="pill s-mute">read</span></td><td class="mono dim">v3</td><td class="num">4,182</td><td class="num">2</td><td class="num mono">340ms</td><td><span class="pill s-ok">on</span></td></tr>
+            <tr><td class="mono nm">workspace_resume</td><td><span class="pill s-mute">read</span></td><td class="mono dim">v2</td><td class="num">1,077</td><td class="num">0</td><td class="num mono">610ms</td><td><span class="pill s-ok">on</span></td></tr>
+            <tr><td class="mono nm">submit_argument</td><td><span class="pill s-acc">write</span></td><td class="mono dim">v2</td><td class="num">388</td><td class="num">4</td><td class="num mono">520ms</td><td><span class="pill s-ok">on</span></td></tr>
+            <tr><td class="mono nm">draft_amendment</td><td><span class="pill s-crit">gated</span></td><td class="mono dim">v1</td><td class="num">41</td><td class="num">0</td><td class="num mono">2.1s</td><td><span class="pill s-ok">on</span></td></tr>
+            <tr><td class="mono nm">cast_vote</td><td><span class="pill s-crit">gated</span></td><td class="mono dim">v2</td><td class="num">903</td><td class="num">1</td><td class="num mono">280ms</td><td><span class="pill s-ok">on</span></td></tr>
+            <tr><td class="mono nm dim">list_ideas</td><td><span class="pill s-mute">read</span></td><td class="mono dim">v1</td><td class="num dim">12</td><td class="num dim">0</td><td class="num mono dim">190ms</td><td><span class="pill s-warn">deprecated</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="p-scopes">
+      <p class="hint">Scopes map to tools. Mandates expire by default — re-granting is a deliberate act, not a renewal that happens quietly.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Scope</th><th>Grants</th><th>Available to</th><th>Term</th><th>Held by</th></tr></thead>
+          <tbody>
+            <tr><td class="mono nm">read</td><td class="dim">All read tools and resources</td><td>Any verified member</td><td class="mono">90d</td><td class="num">61</td></tr>
+            <tr><td class="mono nm">deliberate</td><td class="dim">submit_argument · read_debate</td><td>Member, 30d standing</td><td class="mono">90d</td><td class="num">44</td></tr>
+            <tr><td class="mono nm">vote</td><td class="dim">cast_vote · proxy within bounds</td><td>Member, ratified pledge</td><td class="mono">30d</td><td class="num">38</td></tr>
+            <tr><td class="mono nm">amend</td><td class="dim">draft_amendment</td><td>Member, 2+ sealed contributions</td><td class="mono">30d</td><td class="num">17</td></tr>
+            <tr><td class="mono nm">vouch</td><td class="dim">vouch_for</td><td>Member, 90d standing</td><td class="mono">180d</td><td class="num">22</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="p-members">
+      <p class="hint">Admission is by vouching. A voucher stakes their own standing — if a voucher is revoked for cause, everyone they admitted is flagged for review.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Member</th><th>Vouched by</th><th>Standing</th><th>Contributions</th><th>Allowance</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="nm">M. Okonjo</td><td class="dim">Anton · R. Delacroix</td><td class="mono">142d</td><td class="num">31</td><td class="num mono">$4.20 / $8</td><td><span class="pill s-ok">verified</span></td></tr>
+            <tr><td class="nm">R. Delacroix</td><td class="dim">Anton · L. Petrov</td><td class="mono">138d</td><td class="num">27</td><td class="num mono">$6.80 / $8</td><td><span class="pill s-ok">verified</span></td></tr>
+            <tr><td class="nm">S. Haddad</td><td class="dim">R. Delacroix · M. Okonjo</td><td class="mono">2d</td><td class="num">1</td><td class="num mono">$0.40 / $8</td><td><span class="pill s-ok">verified</span></td></tr>
+            <tr><td class="nm">A. Nakamura</td><td class="dim">M. Okonjo · <em>awaiting 2nd</em></td><td class="mono dim">—</td><td class="num dim">0</td><td class="num mono dim">—</td><td><span class="pill s-warn">pending</span></td></tr>
+            <tr><td class="nm dim">J. Ferreira</td><td class="dim">Anton</td><td class="mono dim">—</td><td class="num dim">9</td><td class="num mono dim">—</td><td><span class="pill s-crit">revoked</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="p-ledger">
+      <p class="hint">Every sealed contribution, hash-chained. AI involvement is declared by the contributor, never inferred. Chain roots are published so anyone can verify history has not been rewritten.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Entry</th><th>Contributor</th><th>Kind</th><th>Subject</th><th>AI role</th><th>Sealed</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">#00412</td><td class="nm">M. Okonjo</td><td>Argument</td><td class="dim">Clause II.4 — enforcement scope</td><td><span class="pill s-warn">assisted</span></td><td class="mono dim">13:58</td></tr>
+            <tr><td class="mono">#00411</td><td class="nm">S. Haddad</td><td>Translation</td><td class="dim">Clauses I.1–I.12 → Arabic</td><td><span class="pill s-warn">drafted</span></td><td class="mono dim">12:40</td></tr>
+            <tr><td class="mono">#00410</td><td class="nm">R. Delacroix</td><td>Amendment</td><td class="dim">Clause I.33 — disclosure at point of encounter</td><td><span class="pill s-mute">none</span></td><td class="mono dim">11:02</td></tr>
+            <tr><td class="mono">#00409</td><td class="nm">L. Petrov</td><td>Objection</td><td class="dim">Clause III.6 — audit cadence</td><td><span class="pill s-warn">reviewed</span></td><td class="mono dim">09:15</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="k">Chain integrity</div><div class="v" style="color:var(--ok)">OK</div><div class="d">412 entries verified 4m ago</div></div>
+        <div class="tile"><div class="k">Last published root</div><div class="v" style="font-family:var(--f-mono);font-size:1rem">a91f…3c07</div><div class="d">20 Aug 06:00 UTC</div></div>
+        <div class="tile"><div class="k">AI-disclosed share</div><div class="v">64%</div><div class="d">of sealed contributions</div></div>
+      </div>
+    </div>
+
+    <div class="pane" id="p-constitution">
+      <p class="hint">Progress toward ratifying HRC v1. Contested clauses are surfaced first — they are where the deliberation is actually needed.</p>
+      <div class="tiles">
+        <div class="tile"><div class="k">Road to V1</div><div class="v">60%</div><div class="d">31 of 52 above threshold</div></div>
+        <div class="tile"><div class="k">Contested</div><div class="v">7</div><div class="d dn">below 40% consensus</div></div>
+        <div class="tile"><div class="k">Undiscussed</div><div class="v">4</div><div class="d">no arguments filed</div></div>
+        <div class="tile"><div class="k">In voting now</div><div class="v">3</div><div class="d">closes in 2 days</div></div>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Clause</th><th>Title</th><th>Consensus</th><th>Arguments</th><th>Votes</th><th>State</th></tr></thead>
+          <tbody>
+            <tr><td class="mono nm">II.4</td><td>Enforcement &amp; Redress</td><td class="num mono" style="color:var(--crit)">31%</td><td class="num">42</td><td class="num">98</td><td><span class="pill s-crit">contested</span></td></tr>
+            <tr><td class="mono nm">III.6</td><td>Audit Cadence</td><td class="num mono" style="color:var(--crit)">38%</td><td class="num">19</td><td class="num">71</td><td><span class="pill s-crit">contested</span></td></tr>
+            <tr><td class="mono nm">I.7</td><td>Right to Privacy of Thought</td><td class="num mono" style="color:var(--warn)">62%</td><td class="num">28</td><td class="num">104</td><td><span class="pill s-warn">in voting</span></td></tr>
+            <tr><td class="mono nm">I.19</td><td>Right to Human Review</td><td class="num mono" style="color:var(--ok)">78%</td><td class="num">15</td><td class="num">112</td><td><span class="pill s-ok">ratified</span></td></tr>
+            <tr><td class="mono nm">I.33</td><td>Truthful Media</td><td class="num mono" style="color:var(--ok)">81%</td><td class="num">22</td><td class="num">119</td><td><span class="pill s-ok">ratified</span></td></tr>
+            <tr><td class="mono nm dim">III.9</td><td class="dim">Planetary Stewardship Reporting</td><td class="num mono dim">—</td><td class="num dim">0</td><td class="num dim">0</td><td><span class="pill s-mute">undiscussed</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const META = {
+    overview:     ["/admin", "Overview", "Signed in as Anton · Super Admin (L5)", ""],
+    releases:     ["/admin/releases", "Releases", "Plugin distribution · staged promotion", "<button class='btn'>New release…</button>"],
+    content:      ["/admin/content", "Content approvals", "3 pending · publishes live on approval", "<button class='btn'>History</button>"],
+    firewall:     ["/admin/firewall", "Firewall &amp; agents", "61 active credentials · 2 refusals today", "<button class='btn'>Revocation list</button><button class='btn pri'>Issue credential…</button>"],
+    actions:      ["/admin/approvals", "Action inbox", "4 agent actions awaiting a human", ""],
+    clients:      ["/admin/clients", "Connected clients", "128 connections across 5 client types", "<button class='btn'>Broadcast notice…</button>"],
+    tools:        ["/admin/tools", "Tool registry", "11 tools · changes take effect without redeploy", ""],
+    scopes:       ["/admin/scopes", "Scopes &amp; mandates", "5 scopes · mandates expire by default", "<button class='btn dgr'>Emergency revoke all</button>"],
+    members:      ["/admin/members", "Members &amp; vouching", "148 verified · 11 vouches pending", ""],
+    ledger:       ["/admin/ledger", "Contribution ledger", "412 sealed entries · chain verified", "<button class='btn'>Export</button>"],
+    constitution: ["/admin/constitution", "Ratification", "31 of 52 clauses at consensus", ""]
+  };
+
+  const path = document.getElementById("path");
+  const title = document.getElementById("title");
+  const sub = document.getElementById("sub");
+  const acts = document.getElementById("acts");
+
+  document.querySelectorAll(".nav[data-p]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var key = btn.dataset.p;
+      document.querySelectorAll(".nav[data-p]").forEach(function (b) { b.setAttribute("aria-current", "false"); });
+      btn.setAttribute("aria-current", "true");
+      document.querySelectorAll(".pane").forEach(function (p) { p.classList.remove("on"); });
+      var pane = document.getElementById("p-" + key);
+      if (pane) pane.classList.add("on");
+      var m = META[key];
+      if (m) { path.textContent = m[0]; title.innerHTML = m[1]; sub.innerHTML = m[2]; acts.innerHTML = m[3]; }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+</script>

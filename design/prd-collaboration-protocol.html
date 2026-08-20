@@ -1,0 +1,810 @@
+<title>HRC Collaboration Protocol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground:      #F1F4F3;
+    --surface:     #FBFCFC;
+    --surface-alt: #E7EDEB;
+    --ink:         #08131F;
+    --ink-soft:    #3D4F58;
+    --ink-mute:    #66787F;
+    --rule:        #CBD6D3;
+    --rule-soft:   #DDE5E3;
+    --accent:      #0C7F77;
+    --accent-deep: #075E58;
+    --accent-wash: #DCEFEC;
+    --gold:        #9A6B12;
+    --gold-wash:   #F5EAD4;
+    --crit:        #A8342A;
+    --crit-wash:   #F6E2E0;
+
+    --f-display: "Spectral", Georgia, "Times New Roman", serif;
+    --f-body:    "Public Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    --measure: 68ch;
+    --pad: clamp(1.15rem, 4vw, 3.25rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #070F17;
+      --surface:     #0D1922;
+      --surface-alt: #132330;
+      --ink:         #E4EDEC;
+      --ink-soft:    #A8BCBD;
+      --ink-mute:    #77908F;
+      --rule:        #22333E;
+      --rule-soft:   #1A2A34;
+      --accent:      #56D8CC;
+      --accent-deep: #8AE9E0;
+      --accent-wash: #0F2C2E;
+      --gold:        #E0AE55;
+      --gold-wash:   #2B2213;
+      --crit:        #E8867B;
+      --crit-wash:   #2E1815;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #070F17;
+    --surface:     #0D1922;
+    --surface-alt: #132330;
+    --ink:         #E4EDEC;
+    --ink-soft:    #A8BCBD;
+    --ink-mute:    #77908F;
+    --rule:        #22333E;
+    --rule-soft:   #1A2A34;
+    --accent:      #56D8CC;
+    --accent-deep: #8AE9E0;
+    --accent-wash: #0F2C2E;
+    --gold:        #E0AE55;
+    --gold-wash:   #2B2213;
+    --crit:        #E8867B;
+    --crit-wash:   #2E1815;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .doc {
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: clamp(1.75rem, 5vw, 4rem) var(--pad) 5rem;
+  }
+
+  /* ── Masthead ─────────────────────────────────────── */
+  .masthead {
+    border-top: 3px solid var(--ink);
+    padding-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: clamp(2.1rem, 6vw, 3.4rem);
+    line-height: 1.06;
+    letter-spacing: -0.018em;
+    margin: 0.45rem 0 0;
+    text-wrap: balance;
+  }
+
+  .standfirst {
+    font-family: var(--f-display);
+    font-size: clamp(1.02rem, 2.2vw, 1.2rem);
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: var(--measure);
+    margin: 0.7rem 0 0;
+  }
+
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 0.85rem 1.5rem;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.95rem 0;
+  }
+  .meta div { display: flex; flex-direction: column; gap: 0.15rem; }
+  .meta dt {
+    font-family: var(--f-mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+  .meta dd {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Sections ─────────────────────────────────────── */
+  section { margin-top: 3rem; }
+
+  h2 {
+    font-family: var(--f-display);
+    font-size: clamp(1.35rem, 3vw, 1.72rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: 0 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    text-wrap: balance;
+  }
+  h2 .num {
+    font-family: var(--f-mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--accent);
+    flex: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  h3 {
+    font-family: var(--f-body);
+    font-size: 0.94rem;
+    font-weight: 700;
+    letter-spacing: 0.005em;
+    margin: 1.7rem 0 0.5rem;
+  }
+
+  p { margin: 0 0 0.85rem; max-width: var(--measure); }
+  p:last-child { margin-bottom: 0; }
+
+  ul, ol { margin: 0 0 0.9rem; padding-left: 1.15rem; max-width: var(--measure); }
+  li { margin-bottom: 0.34rem; }
+  li::marker { color: var(--ink-mute); }
+
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+
+  code {
+    font-family: var(--f-mono);
+    font-size: 0.855em;
+    background: var(--surface-alt);
+    padding: 0.1em 0.36em;
+    border-radius: 3px;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  /* ── Callouts ─────────────────────────────────────── */
+  .thesis {
+    background: var(--accent-wash);
+    border-left: 3px solid var(--accent);
+    padding: 1.05rem 1.25rem;
+    margin: 1.25rem 0;
+    max-width: var(--measure);
+  }
+  .thesis p { margin: 0; }
+  .thesis p + p { margin-top: 0.6rem; }
+
+  .flag {
+    background: var(--gold-wash);
+    border-left: 3px solid var(--gold);
+    padding: 0.9rem 1.15rem;
+    margin: 1.15rem 0;
+    max-width: var(--measure);
+    font-size: 0.9rem;
+  }
+  .flag p { margin: 0; }
+  .flag p + p { margin-top: 0.55rem; }
+  .flag .tag {
+    font-family: var(--f-mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+
+  /* ── Tables ───────────────────────────────────────── */
+  .scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 34rem;
+    font-size: 0.855rem;
+  }
+  thead th {
+    text-align: left;
+    font-family: var(--f-mono);
+    font-size: 0.63rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding: 0.5rem 0.8rem 0.5rem 0;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 0.55rem 0.8rem 0.55rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: 1px solid var(--rule); }
+  td.tool { white-space: nowrap; }
+  td.tool code { background: none; padding: 0; color: var(--accent-deep); font-weight: 500; }
+
+  .grp th {
+    font-family: var(--f-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink);
+    padding: 1.05rem 0 0.3rem;
+    border-bottom: none;
+  }
+  .grp:first-child th { padding-top: 0.35rem; }
+
+  /* ── Pills ────────────────────────────────────────── */
+  .pill {
+    display: inline-block;
+    font-family: var(--f-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 0.14em 0.5em;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .p-read  { background: var(--surface-alt); color: var(--ink-soft); }
+  .p-write { background: var(--accent-wash); color: var(--accent-deep); }
+  .p-gate  { background: var(--crit-wash);   color: var(--crit); }
+
+  /* ── Split panel: plugin vs server ────────────────── */
+  .split {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin: 1.2rem 0;
+  }
+  .split > div { background: var(--surface); padding: 1.05rem 1.15rem 1.2rem; }
+  .split h4 {
+    font-family: var(--f-display);
+    font-size: 1.02rem;
+    font-weight: 600;
+    margin: 0 0 0.15rem;
+  }
+  .split .sub {
+    font-family: var(--f-mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    display: block;
+    margin-bottom: 0.7rem;
+  }
+  .split ul { margin: 0; padding-left: 1rem; font-size: 0.845rem; color: var(--ink-soft); max-width: none; }
+  .split li { margin-bottom: 0.28rem; }
+
+  /* ── Pipeline rail ────────────────────────────────── */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin: 1.15rem 0;
+  }
+  .stage { background: var(--surface); padding: 0.9rem 1rem 1rem; }
+  .stage .st {
+    font-family: var(--f-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+  .stage p { margin: 0; font-size: 0.83rem; color: var(--ink-soft); max-width: none; }
+
+  /* ── Admin cards ──────────────────────────────────── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-bottom: 1.1rem;
+  }
+  .card {
+    background: var(--surface);
+    padding: 1.05rem 1.15rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .card .path {
+    font-family: var(--f-mono);
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 0.01em;
+  }
+  .card h4 {
+    font-family: var(--f-display);
+    font-size: 1.04rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.25;
+  }
+  .card ul { margin: 0; padding-left: 1rem; font-size: 0.82rem; color: var(--ink-soft); max-width: none; }
+  .card li { margin-bottom: 0.22rem; }
+  .card.pri { background: var(--accent-wash); }
+  .card.pri ul { color: var(--ink); }
+
+  /* ── Phase rail ───────────────────────────────────── */
+  .phases { display: flex; flex-direction: column; gap: 0; max-width: var(--measure); }
+  .phase {
+    display: grid;
+    grid-template-columns: 4.2rem 1fr;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .phase:last-child { border-bottom: none; }
+  .phase .p-num {
+    font-family: var(--f-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .phase h4 { margin: 0 0 0.2rem; font-size: 0.93rem; font-weight: 700; font-family: var(--f-body); }
+  .phase p { margin: 0; font-size: 0.87rem; color: var(--ink-soft); }
+
+  /* ── Decisions ────────────────────────────────────── */
+  .decided { max-width: var(--measure); }
+  .decided > div {
+    padding: 0.72rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+    display: grid;
+    grid-template-columns: 1.9rem 1fr;
+    gap: 0.85rem;
+  }
+  .decided > div:last-child { border-bottom: none; }
+  .decided .mark {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .decided p { margin: 0; font-size: 0.89rem; }
+  .decided .why { color: var(--ink-mute); font-size: 0.845rem; margin-top: 0.24rem; }
+
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    max-width: var(--measure);
+  }
+  footer a { color: var(--ink-mute); }
+</style>
+
+<div class="doc">
+
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">Product Requirements · Humanity-AI.Quest</div>
+      <h1>HRC Collaboration Protocol</h1>
+      <p class="standfirst">A plugin and an MCP server that let a member bring their own agent to the drafting of a constitution — with every contribution provenanced to a verified human.</p>
+    </div>
+
+    <dl class="meta">
+      <div><dt>Status</dt><dd>Draft v0.2</dd></div>
+      <div><dt>Date</dt><dd>20 Aug 2026</dd></div>
+      <div><dt>Phase</dt><dd>1 — Ratify HRC v1</dd></div>
+      <div><dt>Team</dt><dd>Solo, pre-funding</dd></div>
+      <div><dt>Surface</dt><dd>mcp.humanity-ai.quest</dd></div>
+      <div><dt>Reuses</dt><dd>Existing SPA · D1 · Auth</dd></div>
+    </dl>
+  </header>
+
+  <section>
+    <h2><span class="num">01</span> What Phase 1 actually is</h2>
+    <p>Phase 1 is <strong>not</strong> an open-source development community. There is no code contribution, no sprint board, no pull requests. Phase 1 is:</p>
+    <ul>
+      <li>People join and are vouched in as verified humans.</li>
+      <li>They deliberate on the 52 clauses — argue, amend, translate, object.</li>
+      <li>They ratify version 1 of the Humanities-AI Rights Constitution.</li>
+      <li>Their own agent helps them do all of it.</li>
+    </ul>
+    <p>The deliverable is a membership, a ratified constitution, and a proof of concept credible enough to raise against.</p>
+
+    <div class="thesis">
+      <p><strong>The reframe that keeps the IP thesis alive with no code.</strong> In Phase 1 the contribution ledger records <em>constitutional</em> contributions — clause drafts, arguments, translations, votes, objections. Same provenance, same hash chain, same attribution to a verified human.</p>
+      <p>The ledger gets built and proven on deliberation before a single line of code exists. And <em>"we ratified a constitution through agent-assisted deliberation, with every contribution attributed to a named human"</em> is a stronger thing to show an investor than a half-built project tracker.</p>
+    </div>
+
+    <p>Everything to do with software delivery — GitHub App, constitutional CI, work assignment, PR review — is Phase 2, and is listed in §09 so it is not lost.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span> Decisions now locked</h2>
+    <div class="decided">
+      <div>
+        <span class="mark">D1</span>
+        <div>
+          <p><strong>Verification is vouching, seeded by GitHub history.</strong> Existing verified members vouch for newcomers, staking their own standing. No ID scanning.</p>
+          <p class="why">Identity documents inside a digital-rights project is an irony critics would never drop, and it excludes precisely the people the constitution claims to serve. Vouching also builds the social graph the platform needs later.</p>
+        </div>
+      </div>
+      <div>
+        <span class="mark">D2</span>
+        <div>
+          <p><strong>Token cost is hybrid.</strong> Platform funds a monthly allowance for governance work. Code work in Phase 2 is bring-your-own-key.</p>
+          <p class="why">Constitutional participation must never be paywalled. Heavy compute can be, because by then the participant is a developer with their own key.</p>
+        </div>
+      </div>
+      <div>
+        <span class="mark">D3</span>
+        <div>
+          <p><strong>No blockchain.</strong> Signed, hash-chained records in D1, with published chain roots.</p>
+          <p class="why">Delivers the property actually needed — tamper-evidence — without wallets, gas, key-loss support burden, or securities exposure. Revisit only if federation demands cross-instance trustlessness.</p>
+        </div>
+      </div>
+      <div>
+        <span class="mark">D4</span>
+        <div>
+          <p><strong>Agents cannot touch members until registered.</strong> An agent reaches a human only after its human has accepted the Constitution and holds an active scope. Acceptance is the firewall.</p>
+          <p class="why">This is the security model stated as a constitutional act rather than a technical one, which is the correct framing for this project.</p>
+        </div>
+      </div>
+      <div>
+        <span class="mark">D5</span>
+        <div>
+          <p><strong>Solo build, lean.</strong> Maximum reuse of the existing SPA, D1 schema, auth, clause explorer, chat agent, and admin dashboard.</p>
+          <p class="why">Scope is cut to what one person can ship and defend. See §08.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span> How a member connects</h2>
+    <p>Three delivery tiers over one server, so no member is excluded by their choice of tool:</p>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Tier</th><th>Reaches</th><th>Install</th></tr></thead>
+        <tbody>
+          <tr><td><strong>MCP server</strong></td><td>Claude, Cursor, Windsurf, VS Code, Zed, and anything else speaking the protocol</td><td>Paste one URL, sign in</td></tr>
+          <tr><td><strong>Plugin</strong></td><td>Claude Code — the premium experience</td><td>Two commands</td></tr>
+          <tr><td><strong><code>AGENTS.md</code></strong></td><td>Any agent opening the repo</td><td>Zero — it is already there</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What the plugin carries</h3>
+    <p>A plugin is a versioned bundle of agent configuration distributed as a git repo, installed from a marketplace. It can hold an MCP server config, skills, subagents, slash commands, and hooks. For Phase 1:</p>
+    <ul>
+      <li><strong>MCP config</strong> — the connection to <code>mcp.humanity-ai.quest</code></li>
+      <li><strong>Bootstrap skill</strong> — roughly twenty lines: <em>fetch your working instructions from <code>hrc://protocol</code></em></li>
+      <li><strong>Commands</strong> — <code>/hrc</code>, <code>/my-positions</code>, <code>/draft-amendment</code>, <code>/where-do-i-stand</code></li>
+      <li><strong>Subagents</strong> — a clause analyst, and a devil's advocate whose job is to argue against the member's own position</li>
+    </ul>
+    <p>That devil's advocate is not a novelty. Institutionalised dissent is the honest answer to the charge that agent-assisted deliberation manufactures consensus.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span> Thin plugin, thick server</h2>
+
+    <div class="thesis">
+      <p><strong>Anything baked into the plugin is invisible to staff and unrevokable once distributed. Anything served by the MCP server is visible and controllable in real time.</strong></p>
+      <p>Members cannot be forced to update. If clause text or conduct rules live inside the bundle, in six months there are eleven versions in the wild, all behaving differently, with no way to see or fix it.</p>
+    </div>
+
+    <div class="split">
+      <div>
+        <h4>In the plugin</h4>
+        <span class="sub">Static · rare updates</span>
+        <ul>
+          <li>Server URL and OAuth config</li>
+          <li>Command names and shapes</li>
+          <li>Bootstrap skill — a pointer, not content</li>
+          <li>Subagent shells</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Served by MCP</h4>
+        <span class="sub">Live · fully controlled</span>
+        <ul>
+          <li>All 52 clause texts and amendments</li>
+          <li>The deliberation protocol</li>
+          <li>Agent conduct rules</li>
+          <li>Constitutional check logic</li>
+          <li>Anything that could ever need revoking</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>Plugin versions then change only when the <em>shape</em> changes, never when the <em>content</em> does. Content changes are instant, audited, and revertible in one click.</p>
+
+    <h3>The version handshake</h3>
+    <p>Every connection reports client type, client version, and plugin version. The server records it, which is what makes the admin dashboard an instrument rather than a guess. It enables: live adoption data, warnings on outdated versions, refusal below a minimum version, and version-appropriate responses during a migration.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">05</span> Tool surface</h2>
+    <p><span class="pill p-read">read</span> open to verified members · <span class="pill p-write">write</span> requires an active scope · <span class="pill p-gate">gated</span> also requires confirmed human intent in-session.</p>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Tool</th><th>Does</th><th>Class</th></tr></thead>
+        <tbody>
+          <tr class="grp"><th colspan="3">Identity &amp; session</th></tr>
+          <tr><td class="tool"><code>whoami</code></td><td>Verification status, vouchers, standing, active scopes, remaining allowance.</td><td><span class="pill p-read">read</span></td></tr>
+          <tr><td class="tool"><code>workspace_resume</code></td><td>What you were arguing, what changed while you were away, what needs your vote. Continuity lives here, not in any vendor's memory.</td><td><span class="pill p-read">read</span></td></tr>
+
+          <tr class="grp"><th colspan="3">Constitution</th></tr>
+          <tr><td class="tool"><code>hrc_lookup</code></td><td>Clause text, rationale, related clauses, amendment history.</td><td><span class="pill p-read">read</span></td></tr>
+          <tr><td class="tool"><code>hrc_check</code></td><td>Constitutional review of a proposed amendment: verdict, clauses engaged, conflicts created, rationale.</td><td><span class="pill p-read">read</span></td></tr>
+          <tr><td class="tool"><code>hrc_impact</code></td><td>If this clause were amended, which other clauses and open proposals are affected.</td><td><span class="pill p-read">read</span></td></tr>
+          <tr><td class="tool"><code>hrc_diff</code></td><td>What changed between two versions of the constitution, and who ratified it.</td><td><span class="pill p-read">read</span></td></tr>
+
+          <tr class="grp"><th colspan="3">Deliberation</th></tr>
+          <tr><td class="tool"><code>list_proposals</code></td><td>Open, in debate, in voting, or awaiting ratification.</td><td><span class="pill p-read">read</span></td></tr>
+          <tr><td class="tool"><code>read_debate</code></td><td>The argument thread on a clause, with positions clustered rather than listed.</td><td><span class="pill p-read">read</span></td></tr>
+          <tr><td class="tool"><code>submit_argument</code></td><td>Post a position, objection, or supporting case. Attributed and ledgered.</td><td><span class="pill p-write">write</span></td></tr>
+          <tr><td class="tool"><code>draft_amendment</code></td><td>Propose new clause text with rationale. Runs <code>hrc_check</code> before it can be filed.</td><td><span class="pill p-gate">gated</span></td></tr>
+          <tr><td class="tool"><code>cast_vote</code></td><td>Vote, or act as proxy within bounds the human set. Bounds are stored server-side and cannot be widened by the agent.</td><td><span class="pill p-gate">gated</span></td></tr>
+
+          <tr class="grp"><th colspan="3">Membership &amp; record</th></tr>
+          <tr><td class="tool"><code>vouch_for</code></td><td>Vouch for a newcomer, staking your own standing.</td><td><span class="pill p-gate">gated</span></td></tr>
+          <tr><td class="tool"><code>record_contribution</code></td><td><strong>The provenance call.</strong> Seals a contribution: human, artifact, AI disclosure, hash-chained, timestamped server-side.</td><td><span class="pill p-gate">gated</span></td></tr>
+          <tr><td class="tool"><code>my_ledger</code></td><td>Your own contribution record, exportable.</td><td><span class="pill p-read">read</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Resources</h3>
+    <p><code>hrc://clauses/*</code> · <code>hrc://protocol</code> · <code>hrc://conduct</code> · <code>hrc://state</code> · <code>hrc://my/ledger</code> — served as MCP resources so agents load them as context instead of spending a tool call.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span> Trust &amp; attribution</h2>
+
+    <h3>Authentication</h3>
+    <p>OAuth 2.1 with PKCE, protected-resource metadata per RFC 9728, scope-bound tokens encoding the tool subset they may invoke. The MCP server is a resource server only — it validates, never issues. Under a tenth of public MCP servers use OAuth at all; over half still rely on static API keys. Doing this properly is both correct and a claim worth making out loud.</p>
+
+    <div class="thesis">
+      <p><strong>Assume every connecting client is hostile.</strong> The agent may be any model, jailbroken, or adversarial. Authorization, attribution, rate limits, and constitutional checks are therefore server-side without exception. The client never asserts identity; it presents a token.</p>
+    </div>
+
+    <h3>Attribution</h3>
+    <p>Modelled on the Developer Certificate of Origin rather than a CLA — a lightweight per-contribution assertion signed at the moment of contribution, not a legal document signed once up front. That low barrier is the point, and it is why Chef and GitLab both migrated. Two fields are added that the DCO lacks:</p>
+    <ul>
+      <li><strong>AI disclosure</strong> — which model, what role (drafted / assisted / reviewed), how much. Declared, not inferred.</li>
+      <li><strong>Constitutional verdict</strong> — the <code>hrc_check</code> result at the moment of sealing, stored with the entry.</li>
+    </ul>
+    <p>Entries are hash-chained and chain roots are published, so a rewrite is detectable by anyone. That is the property actually required, and it needs no chain.</p>
+
+    <div class="flag">
+      <span class="tag">Standing constraint</span>
+      <p>A member's agent is only theirs if we cannot read it. Telemetry stops at metadata and safety-classifier verdicts — never stored prompt content. Building surveillance inside a digital-rights platform is the first thing a critic reaches for, and they would be right.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">07</span> Admin: versions, approvals, visibility</h2>
+    <p>The organising principle is that staff <em>approve and configure</em>; they do not fill in forms an agent could have filled in. Two release streams, deliberately separate.</p>
+
+    <h3>Stream 1 — Plugin releases</h3>
+    <p>Staged promotion, human click required between each stage. Nothing reaches members automatically.</p>
+    <div class="pipeline">
+      <div class="stage"><span class="st">Draft</span><p>Built, not distributed. Visible to staff only.</p></div>
+      <div class="stage"><span class="st">Staged</span><p>Installable by staff accounts for verification.</p></div>
+      <div class="stage"><span class="st">Canary</span><p>Opt-in cohort. Error rate and adoption watched.</p></div>
+      <div class="stage"><span class="st">General</span><p>Offered to all members. Rollback available.</p></div>
+    </div>
+    <p>Each stage records what changed, who promoted it, how many clients are running it, and the error rate since promotion.</p>
+
+    <h3>Stream 2 — Content changes</h3>
+    <p>Clause text, protocol, conduct rules, prompts. These go live the instant they are approved, which is exactly why approval happens <em>before</em> publish. Diff view, named approver, stated reason, one-click revert to any prior version.</p>
+    <p>Because content is server-side, a bad publish is reverted in seconds. Because plugin releases are staged, a bad release never reaches everyone at once. Those two properties are the entire reason for keeping the streams apart.</p>
+
+    <div class="cards">
+      <div class="card pri">
+        <div class="path">/admin/releases</div>
+        <h4>Release pipeline</h4>
+        <ul>
+          <li>Promote through draft → staged → canary → general</li>
+          <li>Changelog, approver, timestamp per stage</li>
+          <li>Live adoption by plugin version</li>
+          <li>Rollback and minimum-version enforcement</li>
+        </ul>
+      </div>
+
+      <div class="card pri">
+        <div class="path">/admin/content</div>
+        <h4>Content approvals</h4>
+        <ul>
+          <li>Pending changes to clauses, protocol, conduct</li>
+          <li>Side-by-side diff before publish</li>
+          <li>Approve, reject with reason, or revert</li>
+          <li>Full version history, every change attributed</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="path">/admin/clients</div>
+        <h4>Connected clients</h4>
+        <ul>
+          <li>Who is on which client and which version</li>
+          <li>Deprecation windows and sunset dates</li>
+          <li>Broadcast notices to connected agents</li>
+          <li>Refuse connections below a minimum</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="path">/admin/tools</div>
+        <h4>Tool registry</h4>
+        <ul>
+          <li>Enable, deprecate, or retire per tool — no redeploy</li>
+          <li>Schema version and diff</li>
+          <li>Call volume, error rate, p95 latency</li>
+          <li>Rate limits by role</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="path">/admin/scopes</div>
+        <h4>Scopes &amp; mandates</h4>
+        <ul>
+          <li>Scope definitions mapped to tools</li>
+          <li>Which roles may hold which scopes</li>
+          <li>Mandates expire by default</li>
+          <li>Emergency revocation, per member or global</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="path">/admin/approvals</div>
+        <h4>Action inbox</h4>
+        <ul>
+          <li>Agent actions awaiting human approval</li>
+          <li>Reasoning, constitutional verdict, cost</li>
+          <li>Approve · redirect · reject with reason</li>
+          <li>Rejection reasons feed prompt improvement</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="path">/admin/members</div>
+        <h4>Membership &amp; vouching</h4>
+        <ul>
+          <li>Vouch graph and chains of trust</li>
+          <li>Pending verifications</li>
+          <li>Standing, and revocation cascades</li>
+          <li>Allowance usage per member</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="path">/admin/ledger</div>
+        <h4>Contribution ledger</h4>
+        <ul>
+          <li>Every sealed contribution, with AI disclosure</li>
+          <li>Chain integrity check and published roots</li>
+          <li>Platform agents public, member agents private</li>
+          <li>Export for audit</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="path">/admin/constitution</div>
+        <h4>Ratification progress</h4>
+        <ul>
+          <li>Consensus per clause, contested clauses first</li>
+          <li>Road to V1 — clauses above threshold</li>
+          <li><code>hrc_check</code> pass rate — 100% means the checks are toothless</li>
+          <li>Amendment impact preview</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>Changes to versions, tools, scopes, and content are themselves logged as admin actions, under the same audit trail as everything else.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">08</span> Build order for one person</h2>
+    <p>Sequenced so there is something demonstrable at every stage, and so nothing can write to state before identity and transport are proven.</p>
+    <div class="phases">
+      <div class="phase">
+        <div class="p-num">P0 · 2wk</div>
+        <div><h4>Read-only server</h4><p><code>whoami</code>, <code>hrc_lookup</code>, resources, OAuth end to end. Zero write paths. Reuses the existing clause data and auth.</p></div>
+      </div>
+      <div class="phase">
+        <div class="p-num">P1 · 1wk</div>
+        <div><h4>Plugin v0.1</h4><p>Marketplace repo, bootstrap skill, <code>/hrc</code>. First external member connects their own agent. <strong>This is the demo that raises money.</strong></p></div>
+      </div>
+      <div class="phase">
+        <div class="p-num">P2 · 2wk</div>
+        <div><h4>Deliberation tools</h4><p><code>submit_argument</code>, <code>draft_amendment</code>, <code>cast_vote</code>, <code>hrc_check</code>. Real constitutional work now flows through the protocol.</p></div>
+      </div>
+      <div class="phase">
+        <div class="p-num">P3 · 2wk</div>
+        <div><h4>Vouching &amp; ledger</h4><p><code>vouch_for</code>, <code>record_contribution</code>, hash chain, AI disclosure. Provenance becomes real.</p></div>
+      </div>
+      <div class="phase">
+        <div class="p-num">P4 · 2wk</div>
+        <div><h4>Admin release &amp; approvals</h4><p><code>/admin/releases</code> and <code>/admin/content</code> first — the two screens without which everything above is invisible to staff. Then clients, tools, scopes.</p></div>
+      </div>
+    </div>
+    <p>Roughly nine weeks solo to a POC that demonstrates the entire thesis. Cut P4 down to the two priority screens if time is short; do not cut them entirely.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">09</span> Explicitly deferred to Phase 2</h2>
+    <p>Recorded so it is not relitigated, and so investors can see the roadmap is deliberate rather than unfinished.</p>
+    <ul>
+      <li>GitHub App, work assignment, PR review, constitutional CI as a required status check</li>
+      <li>The AI-contribution wedge — provenanced agent PRs in a landscape where most projects are banning them</li>
+      <li>Clause↔code traceability and amendment impact analysis across a codebase</li>
+      <li>Hosted or containerised member agents, and any code execution on our infrastructure</li>
+      <li>The agent workforce — triage, QA, docs, release agents</li>
+      <li>Value distribution beyond attribution</li>
+      <li>Federation to other communities</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">10</span> Still open</h2>
+    <ul>
+      <li><strong>Vouch mechanics.</strong> How many vouches admit a member? Does a revoked voucher cascade to those they admitted? What stops a vouching ring? Needs a written rule before P3.</li>
+      <li><strong>Allowance size.</strong> What monthly token budget makes governance participation genuinely free without becoming the largest line item pre-funding?</li>
+      <li><strong>Ratification threshold.</strong> What consensus level ratifies a clause into V1, and who certifies it? This is a constitutional question, not a product one — and it should be decided by the members, in public, which is itself a good demonstration.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Draft v0.2 · for review, not for build. Supersedes v0.1, which was scoped to a development community. Sources consulted: <a href="https://contribute.cncf.io/projects/best-practices/governance/">CNCF governance best practices</a>, <a href="https://www.chaoss.community/">CHAOSS</a>, <a href="https://opensource.com/article/18/3/cla-vs-dco-whats-difference">CLA vs. DCO</a>, <a href="https://github.com/melissawm/open-source-ai-contribution-policies">open-source AI contribution policies</a>, <a href="https://www.descope.com/blog/post/mcp-auth-spec">MCP authorization specification</a>.</p>
+  </footer>
+
+</div>
